@@ -20,7 +20,7 @@ class UniqueReview(MRJob):
         current_text = regex.sub(" ", current_text)
         words = current_text.split()
         #print(current_text)
-        if len(words) < 600:
+        if len(words) < 1000:
             for word in words:
                 yield word, line['text']
 

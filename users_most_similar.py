@@ -26,25 +26,25 @@ class SimilarUsers(MRJob):
         for business_id in business_list:
             yield business_id, tuple([user_id, review_count])
 
-    def reducer_similarity(self, business_id, user_count):
+    def reducer_pairs(self, business_id, user_count):
         user_count_list = [u for u in user_count]
         for combination in itertools.combinations(user_count_list,2): #each pair of users
-            yield combination, 1
+            yield sorted(combination), 1
 
     def reducer_jaccard(self, user_pair, value):
         pair_list = [p for p in user_pair]
         jaccard = sum(value) * 1.0 / ((pair_list[0][1] + pair_list[1][1]) - sum(value))
-        yield [pair_list[0][0], pair_list[1][0]], jaccard # sum(values) * 1.0 / (key[0][1] + key[1][1] - sum(values))
+        yield [pair_list[0][0], pair_list[1][0]], jaccard
 
     def reducer_similar_pairs(self, key, values):
         similarity = sum(values)
         if similarity >= 0.5:
-            yield "Pair:", [key[0],key[1]]
+            yield "Pair:", key
 
     def steps(self):
         return [MRStep(mapper=self.mapper_user_ids),
                 MRStep(reducer=self.reducer_reviews_per_user),
-                MRStep(reducer=self.reducer_similarity),
+                MRStep(reducer=self.reducer_pairs),
                 MRStep(reducer=self.reducer_jaccard),
                 MRStep(reducer=self.reducer_similar_pairs)]
 

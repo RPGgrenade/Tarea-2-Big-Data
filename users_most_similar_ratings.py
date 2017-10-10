@@ -41,7 +41,7 @@ class SimilarUsersRatings(MRJob):
           ratings = [rating_a, rating_b]
           yield users, ratings
 
-    def reducer_jaccard(self, user_pair, rating_pairs):
+    def reducer_similarity(self, user_pair, rating_pairs):
 
         total_dividend = 0
         total_divider_a = 0
@@ -53,14 +53,14 @@ class SimilarUsersRatings(MRJob):
             total_divider_a += (rating_a*rating_a)
             total_divider_b += (rating_b*rating_b)
         similarity = total_dividend * 1.0/(math.sqrt(total_divider_a)*math.sqrt(total_divider_b))
-        if similarity >= 1.0:
+        if similarity > 0.8:
             yield "Pair", user_pair
 
     def steps(self):
         return [MRStep(mapper=self.mapper_user_data),
                 MRStep(reducer=self.reducer_user_pairs),
                 MRStep(reducer=self.reducer_pair_ratings),
-                MRStep(reducer=self.reducer_jaccard)]
+                MRStep(reducer=self.reducer_similarity)]
 
 
 if __name__ == '__main__':
