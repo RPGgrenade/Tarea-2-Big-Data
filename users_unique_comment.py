@@ -46,7 +46,8 @@ class UniqueReview(MRJob):
         yield biggest_sum, text
 
     def steps(self):
-        return [MRStep(mapper=self.mapper_text_by_word), MRStep(reducer=self.reducer_uniques_in_text),
+        return [MRStep(mapper=self.mapper_text_by_word),
+                MRStep(reducer=self.reducer_uniques_in_text),
                 MRStep(reducer=self.reducer_sum_uniques_in_text),
                 MRStep(reducer=self.reducer_max_words_used_once)]
 

@@ -81,7 +81,8 @@ class PopularUsersPerCategory(MRJob):
         yield category, most_popular_user
 
     def steps(self):
-        return [MRStep(mapper=self.mapper_user_category), MRStep(reducer=self.reducer_join_business_review),
+        return [MRStep(mapper=self.mapper_user_category),
+                MRStep(reducer=self.reducer_join_business_review),
                 MRStep(reducer=self.reducer_categorize_user_votes),
                 MRStep(reducer=self.reducer_most_popular_user)]
 

@@ -10,7 +10,7 @@ import string
 import json
 
 
-class SimilarUsers(MRJob):
+class SimilarUsersRatings(MRJob):
 
     def mapper_user_ids(self, _, line):
         obj = json.loads(line)
@@ -31,25 +31,26 @@ class SimilarUsers(MRJob):
         for combination in itertools.combinations(user_count_list,2): #each pair of users
             yield combination, 1
 
-    def reducer_max_words_used_once(self, user_pair, value):
+    def reducer_jaccard(self, user_pair, value):
         pair_list = [p for p in user_pair]
         jaccard = sum(value) * 1.0 / ((pair_list[0][1] + pair_list[1][1]) - sum(value))
         yield [pair_list[0][0], pair_list[1][0]], jaccard # sum(values) * 1.0 / (key[0][1] + key[1][1] - sum(values))
 
-    def reducer_max(self, key, values):
+    def reducer_similar_pairs(self, key, values):
         similarity = sum(values)
         if similarity >= 0.5:
             yield "Pair:", [key[0],key[1]]
 
     def steps(self):
-        return [MRStep(mapper=self.mapper_user_ids), MRStep(reducer=self.reducer_reviews_per_user),
+        return [MRStep(mapper=self.mapper_user_ids),
+                MRStep(reducer=self.reducer_reviews_per_user),
                 MRStep(reducer=self.reducer_similarity),
-                MRStep(reducer=self.reducer_max_words_used_once),
-                MRStep(reducer=self.reducer_max)]
+                MRStep(reducer=self.reducer_jaccard),
+                MRStep(reducer=self.reducer_similar_pairs)]
 
 
 if __name__ == '__main__':
     start = time.time()
-    SimilarUsers.run()
+    SimilarUsersRatings.run()
     end = time.time()
     print("Time: " + str(end - start) + "sec")
