@@ -33,7 +33,7 @@ class UniqueReview(MRJob):
                 yield associated_text_list[0], 1
 
     def reducer_sum_uniques_in_text(self, associated_text, uniques):
-        yield "Unico", [associated_text, sum(uniques)]
+        yield "Unique", [associated_text, sum(uniques)]
 
     def reducer_max_words_used_once(self, uniques, all_info):
         text = ""
